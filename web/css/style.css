@@ -28,3 +28,28 @@ h2 {
 p {
   margin: 0 0 20px;
 }
+
+code {
+  font-family: Menlo, Consolas, monospace;
+  font-size: 0.85em;
+  background: #efede7;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+sup {
+  line-height: 0;
+}
+
+sup a {
+  text-decoration: none;
+  padding: 0 2px;
+}
+
+.footnotes {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid #e2dfd7;
+  font-size: 16px;
+  color: #5b5b57;
+}
