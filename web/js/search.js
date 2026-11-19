@@ -21,3 +21,54 @@ export function buildIndex(dict) {
 
   return index;
 }
+
+const WORD = /[A-Za-z]+(?:-[A-Za-z]+)*/g; // letters, may have hyphens: "easy-to-use"
+const MAX_PHRASE_WORDS = 4;
+
+/**
+ * Find all dictionary words (and phrases) in a text.
+ * Returns [{ id, start, end }] in text order; `end` is not included,
+ * so text.slice(start, end) is the matched text.
+ * At each word, the longest phrase is tried first.
+ */
+export function findWords(text, index) {
+  const words = splitWords(text);
+  const matches = [];
+  let i = 0;
+
+  while (i < words.length) {
+    const match = longestMatchAt(words, i, index);
+    if (match) {
+      const last = words[i + match.length - 1];
+      matches.push({ id: match.id, start: words[i].start, end: last.end });
+      i += match.length; // jump over the matched words
+    } else {
+      i += 1;
+    }
+  }
+
+  return matches;
+}
+
+// "It fetched." → [{ text: "it", start: 0, end: 2 }, { text: "fetched", start: 3, end: 10 }]
+function splitWords(text) {
+  return [...text.matchAll(WORD)].map((m) => ({
+    text: m[0].toLowerCase(),
+    start: m.index,
+    end: m.index + m[0].length,
+  }));
+}
+
+// Try the longest phrase first (up to MAX_PHRASE_WORDS words), then shorter ones.
+// Returns { id, length } or null.
+function longestMatchAt(words, i, index) {
+  const most = Math.min(MAX_PHRASE_WORDS, words.length - i);
+  for (let length = most; length >= 1; length--) {
+    const key = words.slice(i, i + length).map((w) => w.text).join(" ");
+    const id = index.get(key);
+    if (id !== undefined) {
+      return { id, length };
+    }
+  }
+  return null;
+}
