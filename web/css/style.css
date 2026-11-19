@@ -53,3 +53,10 @@ sup a {
   font-size: 16px;
   color: #5b5b57;
 }
+
+/* TODO F5d: dictionary words (<span class="word">) get a dotted underline.
+   Hints: text-decoration-line, text-decoration-style: dotted,
+   text-decoration-color (a soft grey-blue), text-underline-offset (a few px),
+   cursor: pointer (F6 will open the card on click). */
+.word {
+}

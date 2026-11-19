@@ -13,3 +13,16 @@ export function loadBook(bookId) {
 export function loadChapter(bookId, chapter) {
   return loadJSON(`/content/books/${bookId}/${chapter.text.path}`);
 }
+
+// The shared dictionary for all books: /content/lexicon/core.json
+export function loadCore() {
+  // TODO F5d: one line, like loadBook
+  throw new Error("TODO: loadCore");
+}
+
+// The book's own words. The path comes from book.json: book.terms.path
+// A book without `terms` has no book words → return an empty list (no fetch).
+export async function loadTerms(bookId, book) {
+  // TODO F5d
+  throw new Error("TODO: loadTerms");
+}

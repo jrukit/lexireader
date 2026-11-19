@@ -1,11 +1,28 @@
 import { parseInline } from "./marks.js";
+import { findWords } from "./search.js";
+import { splitByWords } from "./pieces.js";
 
 const TAG = { italic: "em", bold: "strong", code: "code" };
 
-export function renderInline(parent, text) {
+// Add plain text to `parent`.
+// Dictionary words become <span class="word" data-id="...">word</span>.
+function renderText(parent, text, index) {
+  // TODO F5d
+  //   1. find the words:  findWords(text, index)
+  //   2. cut the text:    splitByWords(text, matches)
+  //   3. for each piece:
+  //        no id → parent.append(piece.text)   (a plain text node)
+  //        id    → create a <span>, set className = "word",
+  //                dataset.id = piece.id, textContent = piece.text,
+  //                then parent.append(span)
+  //   Never use innerHTML.
+  parent.append(text); // remove this line when you write the TODO
+}
+
+export function renderInline(parent, text, index) {
   for (const token of parseInline(text)) {
     if (token.type === "text") {
-      parent.append(token.text);
+      renderText(parent, token.text, index);
     } else if (token.type === "footnote") {
       const link = document.createElement("a");
       link.href = `#fn-${token.n}`;
@@ -23,17 +40,17 @@ export function renderInline(parent, text) {
   }
 }
 
-export function renderBlock(block) {
+export function renderBlock(block, index) {
   switch (block.type) {
     case "heading": {
       const el = document.createElement(`h${block.level}`);
-      renderInline(el, block.text);
+      renderInline(el, block.text, index);
       el.dataset.id = block.id;
       return el;
     }
     case "paragraph": {
       const el = document.createElement("p");
-      renderInline(el, block.text);
+      renderInline(el, block.text, index);
       el.dataset.id = block.id;
       return el;
     }
@@ -43,7 +60,7 @@ export function renderBlock(block) {
   }
 }
 
-function renderFootnotes(footnotes) {
+function renderFootnotes(footnotes, index) {
   const entries = Object.entries(footnotes);
   if (entries.length === 0) {
     return null;
@@ -61,14 +78,15 @@ function renderFootnotes(footnotes) {
     back.textContent = `${n}.`;
 
     p.append(back, " ");
-    renderInline(p, note);
+    renderInline(p, note, index);
     section.append(p);
   }
 
   return section;
 }
 
-export function renderChapter(container, chapter, text) {
+// `index` = Map form → id (from buildIndex). Empty Map = no dictionary words.
+export function renderChapter(container, chapter, text, index = new Map()) {
   const article = document.createElement("article");
 
   const title = document.createElement("h1");
@@ -76,13 +94,13 @@ export function renderChapter(container, chapter, text) {
   article.append(title);
 
   for (const block of text.blocks) {
-    const el = renderBlock(block);
+    const el = renderBlock(block, index);
     if (el) {
       article.append(el);
     }
   }
 
-  const notes = renderFootnotes(text.footnotes);
+  const notes = renderFootnotes(text.footnotes, index);
   if (notes) {
     article.append(notes);
   }
